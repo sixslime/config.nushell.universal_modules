@@ -22,33 +22,35 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
     };
     $commitResult
     | if not $push { $in } else {
+        let push = doPush;
         $in
-        | default {}
-        | insert push (doPush)
+        | if $push == null { $in } else {
+            default {}
+            | insert push $push
+        }
     }
 }
 
-export alias wp = w -p;
+export alias wp = w --push;
 
 export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<record, nothing>, submodules: table<path: string, result: record>> {
     let message = $message | parseMessageArgs;
-    let pushFlag = if $push {'--push'} else {''};
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
-        let result = w $pushFlag '[submodule]' $message
+        let result = w --push=$push '[submodule]' $message
         if $result == null { null } else { { path: $submodule.modulePath, result: $result } }
     };
     print -e $"(ansi blue_bold)[THIS](ansi reset)";
-    let this = w $pushFlag $message;
+    let this = w --push=$push $message;
     {
         this: $this,
         submodules: $submodules,
     }
 }
 
-export alias wrp = wr -p;
+export alias wrp = wr --push;
 
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
