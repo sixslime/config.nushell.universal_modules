@@ -1,30 +1,60 @@
 
-export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: string, hash: string, message: string, diff: list<string>, summary: string>, nothing> {
-    ^git add -A;
-    let branch = ^git branch --no-color --show-current;
-    let diff = getDiff '--staged' 'HEAD';
-    if ($diff | is-empty) {
-        print -e $"(ansi yellow)No changes to commit. \(($branch))(ansi reset)";
-        return null;
-    };
-    let message = if not ($message | is-empty) {
-        $message | str join ' '
-    } else {
-        '-'
-    };
-    print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
-    ^git commit -qam $message;
-    let hash = ^git rev-parse HEAD;
-    {
-        summary: $diff.summary,
-        diff: $diff.changes,
-        branch: $branch,
-        hash: $hash,
-        message: $message,
+export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record<branch: string, hash: string, message: string, diff: list<string>, summary: string>> {
+    let commitResult = do {
+        ^git add -A;
+        let branch = ^git branch --no-color --show-current;
+        let diff = getDiff '--staged' 'HEAD';
+        if ($diff | is-empty) {
+            print -e $"(ansi yellow)No changes to commit. \(($branch))(ansi reset)";
+            return null;
+        };
+        let message = if not ($message | is-empty) {
+            $message | str join ' '
+        } else {
+            '-'
+        };
+        print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
+        ^git commit -qam $message;
+        let hash = ^git rev-parse HEAD;
+        {
+            summary: $diff.summary,
+            diff: $diff.changes,
+            branch: $branch,
+            hash: $hash,
+            message: $message,
+        }
     }
-    | if $push {
-        insert push (doPush)
-    } else { $in }
+    $commitResult
+    | if not $push { $in } else {
+        $in
+        | default {}
+        | insert push (doPush)
+    }
+}
+
+export alias wp = w -p;
+
+export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<record, nothing>, submodules: table<path: string, result: record>> {
+    let pushFlag = if $push {'--push'} else {''};
+    let submodules = getSubmodules true
+    | each {|path|
+        cd $path;
+        let result = w $pushFlag '[submodule]' ...$message
+        if $result == null { null } else { { path: $path, result: $result } }
+    };
+    let this = w $pushFlag ...$message;
+    {
+        this: $this,
+        submodules: $submodules,
+    }
+}
+
+export alias wrp = wr -p;
+
+def getSubmodules [recursive: bool]: nothing -> list<string> {
+    ^git submodule -q foreach (if $recursive {'--recursive'} else {''}) "echo $sm_path"
+    | lines
+    | sort-by -r { path split | length }
 }
 
 def getDiff [from: string, to: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {
@@ -59,8 +89,4 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
         $completion
     }
 }
-export def wp [...message: string] {
-    w -p ...$message | default {
-        doPush;
-    }
-}
+
