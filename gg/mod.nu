@@ -1,5 +1,6 @@
 
 export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record<branch: string, hash: string, message: string, diff: list<string>, summary: string>> {
+    let message = $message | parseMessageArgs;
     let commitResult = do {
         ^git add -A;
         let branch = ^git branch --no-color --show-current;
@@ -7,11 +8,6 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
         if ($diff | is-empty) {
             print -e $"(ansi yellow)No changes to commit. \(($branch))(ansi reset)";
             return null;
-        };
-        let message = if not ($message | is-empty) {
-            $message | str join ' '
-        } else {
-            '-'
         };
         print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
         ^git commit -qam $message;
@@ -35,14 +31,17 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
 export alias wp = w -p;
 
 export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<record, nothing>, submodules: table<path: string, result: record>> {
+    let message = $message | parseMessageArgs;
     let pushFlag = if $push {'--push'} else {''};
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
-        let result = w $pushFlag '[submodule]' ...$message
+        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
+        let result = w $pushFlag '[submodule]' $message
         if $result == null { null } else { { path: $submodule.modulePath, result: $result } }
     };
-    let this = w $pushFlag ...$message;
+    print -e $"(ansi blue_bold)[THIS](ansi reset)";
+    let this = w $pushFlag $message;
     {
         this: $this,
         submodules: $submodules,
@@ -51,6 +50,13 @@ export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<r
 
 export alias wrp = wr -p;
 
+def parseMessageArgs []: list<string> -> string {
+    if not ($in | is-empty) {
+        $in | str join ' '
+    } else {
+        '-'
+    }
+}
 def getSubmodules [recursive: bool]: nothing -> table<modulePath: string, cdPath: string> {
     ^git submodule -q foreach (if $recursive {'--recursive'} else {''}) "echo $sm_path , $displaypath"
     | lines
