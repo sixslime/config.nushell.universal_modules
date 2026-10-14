@@ -37,10 +37,10 @@ export alias wp = w -p;
 export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<record, nothing>, submodules: table<path: string, result: record>> {
     let pushFlag = if $push {'--push'} else {''};
     let submodules = getSubmodules true
-    | each {|path|
-        cd $path;
+    | each {|submodule|
+        cd $submodule.cdPath;
         let result = w $pushFlag '[submodule]' ...$message
-        if $result == null { null } else { { path: $path, result: $result } }
+        if $result == null { null } else { { path: $submodule.modulePath, result: $result } }
     };
     let this = w $pushFlag ...$message;
     {
@@ -51,10 +51,15 @@ export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<r
 
 export alias wrp = wr -p;
 
-def getSubmodules [recursive: bool]: nothing -> list<string> {
-    ^git submodule -q foreach (if $recursive {'--recursive'} else {''}) "echo $sm_path"
+def getSubmodules [recursive: bool]: nothing -> table<modulePath: string, cdPath: string> {
+    ^git submodule -q foreach (if $recursive {'--recursive'} else {''}) "echo $sm_path , $displaypath"
     | lines
-    | sort-by -r { path split | length }
+    | each {
+        match ($in | split row ' , ' -n 2) {
+            [$modulePath, $cdPath] => { modulePath: $modulePath, cdPath: $cdPath }
+        }
+    }
+    | sort-by -r { get modulePath | path split | length }
 }
 
 def getDiff [from: string, to: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {
