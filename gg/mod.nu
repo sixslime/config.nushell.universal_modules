@@ -40,7 +40,6 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
         cd $submodule.cdPath;
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
         let result = w --push=$push '[submodule]' $message;
-        $result | print -e;
         if $result == null { null } else { { path: $submodule.modulePath, result: $result } }
     };
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
