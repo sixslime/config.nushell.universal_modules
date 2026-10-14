@@ -33,7 +33,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
 
 export alias wp = w --push;
 
-export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<record, nothing>, submodules: table<path: string, result: record>> {
+export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<record, nothing>, submodules: table<path: string, result: record>> {
     let message = $message | parseMessageArgs;
     let submodules = getSubmodules true
     | each {|submodule|
@@ -43,10 +43,10 @@ export def wr [--push (-p), ...message: string]: nothing -> record<this: oneof<r
         if $result == null { null } else { { path: $submodule.modulePath, result: $result } }
     };
     print -e $"(ansi blue_bold)[THIS](ansi reset)";
-    let this = w --push=$push $message;
+    let super = w --push=$push $message;
     {
-        this: $this,
         submodules: $submodules,
+        super: $super,
     }
 }
 
