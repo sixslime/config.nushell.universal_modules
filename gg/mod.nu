@@ -19,7 +19,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
             hash: $hash,
             message: $message,
         }
-    }
+    };
     $commitResult
     | if not $push { $in } else {
         $in
