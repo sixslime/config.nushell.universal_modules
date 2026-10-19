@@ -80,7 +80,7 @@ def getDiff [from: string, to: string]: nothing -> oneof<nothing, record<changes
     }
 }
 
-def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string>, summary: string>> {
+def doPush []: nothing -> oneof<nothing, record, record<remote: string, diff: list<string>, summary: string>> {
     let branch = ^git branch --no-color --show-current;
     let upstream = ^git rev-parse --abbrev-ref --symbolic-full-name @{u};
     let diffCode = ^git diff $branch $upstream --quiet | complete | get exit_code;
