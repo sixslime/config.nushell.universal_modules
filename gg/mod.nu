@@ -36,7 +36,7 @@ export alias wp = w --push;
 export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<record, nothing>, submodules: table<path: string, result: record>> {
     let message = $message | parseMessageArgs;
     let submodules = getSubmodules true
-    | each {|submodule|
+    | par-each -k {|submodule|
         cd $submodule.cdPath;
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
         let result = w --push=$push '[submodule]' $message;
