@@ -1,5 +1,5 @@
 
-def in [
+export def in [
     glob: oneof<glob, string>,
     func: closure,
     --parallel (-p),
