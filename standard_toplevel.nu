@@ -1,6 +1,7 @@
 
 export use ./gg;
 export use ./fs;
+export use ./ergo;
 
 export use ./gg [
     w,
@@ -14,3 +15,5 @@ export use ./gg [
 export use ./fs [
     in
 ];
+
+export use ./ergo *;
