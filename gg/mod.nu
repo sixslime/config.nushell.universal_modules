@@ -61,6 +61,7 @@ export def fr [--pull-submodules (-u)] {
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
+        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
         let branch = ^git branch --show-current
         | complete
         | get stdout
@@ -71,7 +72,6 @@ export def fr [--pull-submodules (-u)] {
             print -e $"(ansi green)Created local tracking branch '($switchBranch)'.(ansi reset)";
             $switchBranch
         };
-        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
         print -e $"(ansi green)Fetching...(ansi reset)";
         ^git fetch -q;
         let upstream = get-upstream;
