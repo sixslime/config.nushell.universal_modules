@@ -53,18 +53,23 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
 export alias wrp = wr --push;
 
 export def fr [] {
+    print -e $"(ansi blue_bold)[SUPER](ansi reset)";
+    print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
     let super: string = ^git pull;
     ^git submodule update --recursive --init;
     let gitModulesFile: string = [(git rev-parse --show-toplevel), ".gitmodules"] | path join;
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
-        let branch = ^git branch --show-current;
-        if ($branch | is-empty) {
+        let branch = ^git branch --show-current
+        | if is-empty {
             let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch";
             let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
             git switch -C $switchBranch;
+            $switchBranch
         };
+        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
+        print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
         let result = ^git pull;
         { path: $submodule.modulePath, result: $result }
     };
@@ -73,6 +78,15 @@ export def fr [] {
         submodules: $submodules,
     }
 }
+
+export def get-upstream []: nothing -> string {
+    ^git rev-parse --abbrev-ref --symbolic-full-name @{u}
+}
+
+export def get-submodules [--recursive (-r)]: nothing -> table<modulePath: string, cdPath: string> {
+    getSubmodules $recursive
+}
+
 
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
