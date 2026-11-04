@@ -52,6 +52,16 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
 
 export alias wrp = wr --push;
 
+export def fr [--develop (-d)] {
+    let rootPull = ^git pull;
+    ^git submodule update --recursive --init;
+    if $develop {
+        ^git submodule foreach --recursive 'git switch -C "$(git config -f "$toplevel/.gitmodules" "submodules.$name.branch" || echo main)"';
+    };
+}
+
+export alias frd = fr --develop;
+
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
         $in | str join ' '
