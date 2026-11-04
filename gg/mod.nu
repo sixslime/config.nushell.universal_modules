@@ -74,7 +74,7 @@ export def fr [--pull-submodules (-u)] {
         print -e $"(ansi green)Fetching...(ansi reset)";
         ^git fetch -q;
         let upstream = get-upstream;
-        let revCompare = rev-compare-count HEAD $upstream;
+        let revCompare = rev-compare HEAD $upstream;
         let result = {
             upstream: $upstream,
             this: $revCompare,
@@ -106,7 +106,7 @@ export def get-submodules [--recursive (-r)]: nothing -> table<modulePath: strin
     getSubmodules $recursive
 }
 
-export def rev-compare-count [from: string, to: string]: nothing -> record {
+export def rev-compare [from: string, to: string]: nothing -> record {
     let compare = git rev-list --left-right --count $"($from)...($to)"
     | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
     | first;
