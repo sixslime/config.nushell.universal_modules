@@ -110,6 +110,10 @@ export def rev-compare-count [from: string, to: string]: nothing -> record {
     let compare = git rev-list --left-right --count $"($from)...($to)"
     | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
     | first;
+    let compare = {
+        behind: ($compare.ahead | into int),
+        ahead: ($compare.behind | into int),
+    };
     $compare | insert synced (($compare.ahead == 0) and ($compare.behind == 0))
 }
 
