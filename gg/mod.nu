@@ -55,7 +55,7 @@ export alias wrp = wr --push;
 export def fr [--pull-submodules (-p)] {
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
     print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
-    let super: string = ^git pull;
+    let super: string = ^git pull -q;
     ^git submodule update --recursive --init;
     let gitModulesFile: string = [(git rev-parse --show-toplevel), ".gitmodules"] | path join;
     let submodules = getSubmodules true
@@ -76,7 +76,7 @@ export def fr [--pull-submodules (-p)] {
             diff: $diff
         } | if $pull_submodules {
             print -e $"(ansi green)Pulling from ($upstream)...(ansi reset)";
-            $in | insert pull (^git pull)
+            $in | insert pull (^git pull -q)
         } else { $in }
         { path: $submodule.modulePath, result: $result }
     };
