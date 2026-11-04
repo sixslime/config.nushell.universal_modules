@@ -107,7 +107,7 @@ export def get-submodules [--recursive (-r)]: nothing -> table<modulePath: strin
 }
 
 export def rev-compare-count [from: string, to: string]: nothing -> record {
-    let compare = git rev-list --left-right --count $from...$to
+    let compare = git rev-list --left-right --count $"($from)...($to)"
     | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
     | first;
     $compare | insert synced (($compare.ahead == 0) and ($compare.behind == 0))
