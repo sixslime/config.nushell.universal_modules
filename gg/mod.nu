@@ -62,10 +62,11 @@ export def fr [--pull-submodules (-u)] {
     | each {|submodule|
         cd $submodule.cdPath;
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
-        print -e $"(ansi blue)At (^git symbolic-ref --short HEAD)(ansi reset)";
+        print -e $"(ansi gray)@ (^git symbolic-ref --short HEAD).(ansi reset)";
         let upstream = get-upstream;
         let diff = getDiff HEAD $upstream;
         let result = {
+            upstream: $upstream,
             diff: $diff
         } | if $pull_submodules {
             let branch = ^git branch --show-current
