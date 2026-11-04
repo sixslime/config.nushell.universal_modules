@@ -76,7 +76,7 @@ export def fr [--pull-submodules (-p)] {
             diff: $diff
         } | if $pull_submodules {
             let pull = if ($in | get diff | is-empty) {
-                print -e $"(ansi yellow)Already up to date. ($upstream)...(ansi reset)"
+                print -e $"(ansi yellow)Already up to date with ($upstream).(ansi reset)"
                 "Already up to date."
             } else {
                 print -e $"(ansi green)Pulling from ($upstream)...(ansi reset)";
