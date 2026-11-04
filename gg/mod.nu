@@ -61,24 +61,25 @@ export def fr [--pull-submodules (-u)] {
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
+        let branch = ^git branch --show-current
+        | complete
+        | get stdout
+        | if ($in | is-empty) {
+            let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | complete | get stdout;
+            let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
+            git switch -C $switchBranch;
+            $switchBranch
+        };
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
-        print -e $"(ansi gray)@ (^git symbolic-ref --short HEAD).(ansi reset)";
+        print -e $"(ansi green)Fetching...(ansi reset)";
+        ^git fetch -q;
         let upstream = get-upstream;
-        let diff = getDiff HEAD $upstream;
+        let revCompare = rev-compare-count HEAD $upstream;
         let result = {
             upstream: $upstream,
-            diff: $diff
+            this: $revCompare,
         } | if $pull_submodules {
-            let branch = ^git branch --show-current
-            | complete
-            | get stdout
-            | if ($in | is-empty) {
-                let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | complete | get stdout;
-                let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
-                git switch -C $switchBranch;
-                $switchBranch
-            };
-            let pull = if ($in | get diff | is-empty) {
+            let pull = if ($revCompare.synced) {
                 print -e $"(ansi yellow)Already up to date with ($upstream).(ansi reset)"
                 "Already up to date."
             } else {
@@ -105,6 +106,12 @@ export def get-submodules [--recursive (-r)]: nothing -> table<modulePath: strin
     getSubmodules $recursive
 }
 
+export def rev-compare-count [from: string, to: string]: nothing -> record {
+    let compare = git rev-list --left-right --count $from...$to
+    | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
+    | first;
+    $compare | insert synced (($compare.ahead == 0) and ($compare.behind == 0))
+}
 
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
