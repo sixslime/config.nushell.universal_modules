@@ -52,15 +52,27 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
 
 export alias wrp = wr --push;
 
-export def fr [--develop (-d)] {
-    let rootPull = ^git pull;
+export def fr [] {
+    let super: string = ^git pull;
     ^git submodule update --recursive --init;
-    if $develop {
-        ^git submodule foreach --recursive 'git switch -C "$(git config -f "$toplevel/.gitmodules" "submodules.$name.branch" || echo main)"';
+    let gitModulesFile: string = [(git rev-parse --show-toplevel), ".gitmodules"] | path join;
+    let submodules = getSubmodules true
+    | each {|submodule|
+        cd $submodule.cdPath;
+        let branch = ^git branch --show-current;
+        if ($branch | is-empty) {
+            let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch";
+            let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
+            git switch -C $switchBranch;
+        };
+        let result = ^git pull;
+        { path: $submodule.modulePath, result: $result }
     };
+    {
+        super: $super,
+        submodules: $submodules,
+    }
 }
-
-export alias frd = fr --develop;
 
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
