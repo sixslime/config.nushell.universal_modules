@@ -62,7 +62,7 @@ export def fr [] {
     | each {|submodule|
         cd $submodule.cdPath;
         let branch = ^git branch --show-current
-        | if is-empty {
+        | if ($in | is-empty) {
             let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | ignore;
             let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
             git switch -C $switchBranch;
