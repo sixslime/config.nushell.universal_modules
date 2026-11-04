@@ -77,7 +77,7 @@ export def fr [--pull-submodules (-p)] {
         } | if $pull_submodules {
             print -e $"(ansi green)Pulling from ($upstream)...(ansi reset)";
             $in | insert pull (^git pull)
-        }
+        } else { $in }
         { path: $submodule.modulePath, result: $result }
     };
     {
