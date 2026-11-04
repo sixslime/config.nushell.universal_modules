@@ -25,7 +25,8 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
         let push = doPush;
         $in
         | if $push == null { $in } else {
-            default {}
+            $in
+            | default {}
             | insert push $push
         }
     }
