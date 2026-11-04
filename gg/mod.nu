@@ -56,7 +56,7 @@ export def fr [--pull-submodules (-u)] {
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
     print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
     let super: string = ^git pull | complete | get stdout;
-    ^git submodule update --recursive --init;
+    ^git submodule update --recursive --init -q;
     let gitModulesFile: string = [(git rev-parse --show-toplevel), ".gitmodules"] | path join;
     let submodules = getSubmodules true
     | each {|submodule|
@@ -67,7 +67,8 @@ export def fr [--pull-submodules (-u)] {
         | if ($in | is-empty) {
             let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | complete | get stdout;
             let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
-            git switch -C $switchBranch;
+            git switch -qC $switchBranch;
+            print -e $"(ansi green)Created local tracking branch '($switchBranch)'.(ansi reset)";
             $switchBranch
         };
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
