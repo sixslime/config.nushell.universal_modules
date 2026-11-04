@@ -52,7 +52,7 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
 
 export alias wrp = wr --push;
 
-export def fr [--pull-submodules (-p)] {
+export def fr [--pull-submodules (-u)] {
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
     print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
     let super: string = ^git pull | complete | get stdout;
@@ -94,7 +94,7 @@ export def fr [--pull-submodules (-p)] {
     }
 }
 
-export alias frp = fr --pull-submodules;
+export alias fru = fr --pull-submodules;
 
 export def get-upstream []: nothing -> string {
     ^git rev-parse --abbrev-ref --symbolic-full-name @{u}

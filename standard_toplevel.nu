@@ -8,6 +8,7 @@ export use ./gg [
     wr,
     wrp,
     fr,
+    fru,
 ];
 
 export use ./fs [
