@@ -55,32 +55,34 @@ export alias wrp = wr --push;
 export def fr [--pull-submodules (-p)] {
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
     print -e $"(ansi green)Pulling from (get-upstream)...(ansi reset)";
-    let super: string = ^git pull -q;
+    let super: string = ^git pull | complete | get stdout;
     ^git submodule update --recursive --init;
     let gitModulesFile: string = [(git rev-parse --show-toplevel), ".gitmodules"] | path join;
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
-        let branch = ^git branch --show-current
-        | if ($in | is-empty) {
-            let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | ignore;
-            let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
-            git switch -C $switchBranch;
-            $switchBranch
-        };
         print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
-        print -e $"(ansi blue)(^git symbolic-ref --short HEAD)(ansi reset)";
+        print -e $"(ansi blue)At (^git symbolic-ref --short HEAD)(ansi reset)";
         let upstream = get-upstream;
         let diff = getDiff HEAD $upstream;
         let result = {
             diff: $diff
         } | if $pull_submodules {
+            let branch = ^git branch --show-current
+            | complete
+            | get stdout
+            | if ($in | is-empty) {
+                let configBranch = ^git config -f $gitModulesFile $"submodules.($submodule.modulePath).branch" | complete | get stdout;
+                let switchBranch = if ($configBranch | is-empty) { "main" } else { $configBranch };
+                git switch -C $switchBranch;
+                $switchBranch
+            };
             let pull = if ($in | get diff | is-empty) {
                 print -e $"(ansi yellow)Already up to date with ($upstream).(ansi reset)"
                 "Already up to date."
             } else {
                 print -e $"(ansi green)Pulling from ($upstream)...(ansi reset)";
-                ^git pull -q
+                ^git pull | complete | get stdout
             };
             $in | insert pull $pull
         } else { $in }
