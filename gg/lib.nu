@@ -8,6 +8,22 @@ export def parseMessageArgs []: list<string> -> string {
         '-'
     }
 }
+
+export def getMessageFromArgs [
+    default: string = '-',
+    --no-prompt (-n)
+]: list<string> -> string {
+    if ($in | is-not-empty) {
+        $in | str join ' '
+    } else {
+        let prompt = $"(ansi light_blue)[!] commit message (ansi grey)\(default '($default)')(ansi light_blue): (ansi reset)";
+        if $no_prompt {
+            $default
+        } else {
+            input -d $default $prompt
+        }
+    }
+}
 export def getSubmodules [recursive: bool]: nothing -> table<modulePath: string, cdPath: string> {
     ^git submodule -q foreach ...(flag-args {'--recursive':$recursive}) "echo $sm_path , $displaypath"
     | lines

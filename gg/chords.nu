@@ -3,7 +3,7 @@ use ../ergo *;
 use lib.nu *;
 
 export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record> {
-    let message = $message | parseMessageArgs;
+    let message = $message | getMessageFromArgs;
     let commitResult = do {
         ^git add -A;
         let branch = ^git branch --no-color --show-current;
@@ -38,7 +38,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
 export alias wp = w --push;
 
 export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<record, nothing>, submodules: table<path: string, result: record>> {
-    let message = $message | parseMessageArgs;
+    let message = $message | getMessageFromArgs;
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
@@ -131,15 +131,11 @@ export def stt [
     --quick (-q),
 ]: nothing -> record {
     let submodules = getSubmodules true
-    | each {|submodule|
+    | par-each -k {|submodule|
         cd $submodule.cdPath;
-        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
-        print -e $"(ansi green)Status...(ansi reset)";
         let result = st --quick=$quick;
         { path: $submodule.modulePath, result: $result }
     };
-    print -e $"(ansi blue_bold)[SUPER](ansi reset)";
-        print -e $"(ansi green)Status...(ansi reset)";
         let super = st --quick=$quick;
     {
         submodules: $submodules,
