@@ -104,7 +104,7 @@ export def fr [--pull-submodules (-u)] {
 export alias fru = fr --pull-submodules;
 
 export def st [
-    --suppress-clean (-s),
+    --verbose (-v),
 ]: nothing -> oneof<bool, record> {
     let branch = getBranch;
     let upstreamSource = getUpstream;
@@ -122,21 +122,25 @@ export def st [
     } else {
         insert clean true
     }
-    | mapv-if { $suppress_clean and ($in.clean? == true) } {
+    | mapv-if { (not $verbose) and ($in.clean? == true) } {
         true
     }
 }
 
 export def stt [
-    --suppress-clean (-s),
+    --verbose (-v),
 ]: nothing -> record {
-    let super = st --suppress-clean=$suppress_clean;
     let submodules = getSubmodules true
     | each {|submodule|
         cd $submodule.cdPath;
-        let result = st --suppress-clean=$suppress_clean;
+        print -e $"(ansi blue)[($submodule.modulePath)](ansi reset)";
+        print -e $"(ansi green)Status...(ansi reset)";
+        let result = st --verbose=$verbose;
         { path: $submodule.modulePath, result: $result }
     };
+    print -e $"(ansi blue_bold)[SUPER](ansi reset)";
+        print -e $"(ansi green)Status...(ansi reset)";
+        let super = st --verbose=$verbose;
     {
         submodules: $submodules,
         super: $super,
