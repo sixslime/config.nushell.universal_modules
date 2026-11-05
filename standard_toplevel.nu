@@ -6,6 +6,8 @@ export use ./gg [
     wrp,
     fr,
     fru,
+    st,
+    stt,
 ];
 
 export use ./fs [

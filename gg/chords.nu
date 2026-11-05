@@ -109,15 +109,19 @@ export def st []: nothing -> record {
     let upstream = if ($upstreamSource | is-not-empty) {
         {
             source: $upstreamSource,
-            this: (revCompare HEAD $upstreamSource)
+            status: (revCompare $upstreamSource HEAD)
         }
     };
-    let changes = getDiff 'HEAD' | get changes -o | default [];
+    let diff = getDiff 'HEAD';
     {
         branch: $branch,
-        changes: $changes,
     }
-    | insertv upstream $upstream;
+    | insertv upstream $upstream
+    | if ($diff | is-not-empty) {
+        insert dirty $diff
+    } else {
+        insert up-to-date true
+    }
 }
 
 export def stt []: nothing -> record {
