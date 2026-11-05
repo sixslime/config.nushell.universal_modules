@@ -8,6 +8,8 @@ export use ./gg [
     fru,
     st,
     stt,
+    stv,
+    sttv,
 ];
 
 export use ./fs [

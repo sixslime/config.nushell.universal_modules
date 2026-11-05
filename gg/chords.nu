@@ -146,3 +146,6 @@ export def stt [
         super: $super,
     }
 }
+
+export alias stv = st -v;
+export alias sttv = stt -v;
