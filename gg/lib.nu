@@ -20,7 +20,7 @@ export def getMessageFromArgs [
         if $no_prompt {
             $default
         } else {
-            input -d $default $prompt
+            input --reedline -d $default $prompt
         }
     }
 }
