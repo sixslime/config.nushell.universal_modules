@@ -16,7 +16,7 @@ export def getMessageFromArgs [
     if ($in | is-not-empty) {
         $in | str join ' '
     } else {
-        let prompt = $"(ansi light_blue)[!] commit message (ansi grey)\(default '($default)')(ansi light_blue): (ansi reset)";
+        let prompt = $"(ansi light_blue)[!] commit message: (ansi reset)";
         if $no_prompt {
             $default
         } else {
