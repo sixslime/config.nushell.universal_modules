@@ -1,4 +1,6 @@
 
+use ../ergo *;
+
 export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record<branch: string, hash: string, message: string, diff: list<string>, summary: string>> {
     let message = $message | parseMessageArgs;
     let commitResult = do {
@@ -127,7 +129,7 @@ def parseMessageArgs []: list<string> -> string {
     }
 }
 def getSubmodules [recursive: bool]: nothing -> table<modulePath: string, cdPath: string> {
-    ^git submodule -q foreach (if $recursive {'--recursive'} else {''}) "echo $sm_path , $displaypath"
+    ^git submodule -q foreach ...(flag-args {'--recursive':$recursive}) "echo $sm_path , $displaypath"
     | lines
     | each {
         match ($in | split row ' , ' -n 2) {

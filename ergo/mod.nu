@@ -26,3 +26,11 @@ export def chain [modifier: closure]: closure -> closure {
     let prev = $in;
     { ($in | do $prev) | do $modifier }
 }
+
+export def flag-args [flagMap: record]: nothing -> list<string> {
+    ($flagMap
+    | items {|flag, switch|
+        if $switch { $flag } else { null }
+    }
+    | where { is-not-empty })
+}
