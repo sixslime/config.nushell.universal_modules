@@ -106,24 +106,26 @@ export alias fru = fr --pull-submodules;
 export def st []: nothing -> record {
     let branch = getBranch;
     let upstreamSource = getUpstream;
-    let upstream = if ($upstreamSource | is-not-empty) {
+    let remote = if ($upstreamSource | is-not-empty) {
         {
             source: $upstreamSource,
             status: (revCompare $upstreamSource HEAD)
         }
     };
-    let diff = getDiff 'HEAD';
-    {
-        branch: $branch,
-    }
-    | insertv upstream $upstream
-    | if ($diff | is-not-empty) {
-        insert dirty $diff
+    let dirty = getDiff 'HEAD' | mapv { get changes -o };
+    { branch: $branch }
+    | insertv remote $remote
+    | if ($dirty | is-not-empty) {
+        insert dirty $dirty
     } else {
         insert clean true
     }
 }
 
 export def stt []: nothing -> record {
-    {}
+    let super = st;
+    let submodules = getSubmodules true
+    | each {|submodule|
+
+    }
 }
