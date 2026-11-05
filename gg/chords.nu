@@ -103,7 +103,9 @@ export def fr [--pull-submodules (-u)] {
 
 export alias fru = fr --pull-submodules;
 
-export def st []: nothing -> record {
+export def st [
+    --suppress-clean (-s),
+]: nothing -> oneof<bool, record> {
     let branch = getBranch;
     let upstreamSource = getUpstream;
     let remote = if ($upstreamSource | is-not-empty) {
@@ -120,12 +122,23 @@ export def st []: nothing -> record {
     } else {
         insert clean true
     }
+    | mapv-if { $suppress_clean and ($in.clean? == true) } {
+        true
+    }
 }
 
-export def stt []: nothing -> record {
-    let super = st;
+export def stt [
+    --suppress-clean (-s),
+]: nothing -> record {
+    let super = st --suppress-clean=$suppress_clean;
     let submodules = getSubmodules true
     | each {|submodule|
-
+        cd $submodule.cdPath;
+        let result = st --suppress-clean=$suppress_clean;
+        { path: $submodule.modulePath, result: $result }
+    };
+    {
+        submodules: $submodules,
+        super: $super,
     }
 }
