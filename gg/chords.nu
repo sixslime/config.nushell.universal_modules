@@ -112,7 +112,7 @@ export def st []: nothing -> record {
             this: (revCompare HEAD $upstreamSource)
         }
     };
-    let changes = getDiff 'HEAD' | get changes;
+    let changes = getDiff 'HEAD' | get changes -o;
     {
         branch: $branch,
         changes: $changes,
