@@ -120,7 +120,7 @@ export def st []: nothing -> record {
     | if ($diff | is-not-empty) {
         insert dirty $diff
     } else {
-        insert up-to-date true
+        insert clean true
     }
 }
 
