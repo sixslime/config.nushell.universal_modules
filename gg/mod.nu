@@ -121,6 +121,10 @@ export def rev-compare [from: string, to: string]: nothing -> record {
     $compare | insert synced (($compare.ahead == 0) and ($compare.behind == 0))
 }
 
+export def get-diff [from: string, to: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {
+    getDiff $from $to
+}
+
 def parseMessageArgs []: list<string> -> string {
     if not ($in | is-empty) {
         $in | str join ' '
