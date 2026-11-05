@@ -106,10 +106,10 @@ export alias fru = fr --pull-submodules;
 export def st []: nothing -> record {
     let branch = getBranch;
     let upstreamSource = getUpstream;
-    let upstream = if $upstreamSource {
+    let upstream = if ($upstreamSource | is-not-empty) {
         {
             source: $upstreamSource,
-            rev: (revCompare "HEAD" $upstreamSource)
+            this: (revCompare HEAD $upstreamSource)
         }
     };
     let changes = getDiff 'HEAD' | get changes;

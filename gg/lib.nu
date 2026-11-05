@@ -53,7 +53,7 @@ export def doPush []: nothing -> oneof<nothing, record, record<remote: string, d
 }
 
 export def revCompare [from: string, to: string]: nothing -> record {
-    let compare = git rev-list --left-right --count $"($from)...($to)"
+    let compare = ^git rev-list --left-right --count $"($from)..($to)"
     | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
     | first;
     let compare = {
@@ -74,7 +74,7 @@ export def getUpstream []: nothing -> oneof<nothing, string> {
     ^git rev-parse --abbrev-ref --symbolic-full-name @{u}
     | complete
     | if $in.exit_code == 0 {
-        $in.stdout
+        $in.stdout | str trim -r
     } else {
         null
     }
