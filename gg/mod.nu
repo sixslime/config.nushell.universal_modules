@@ -1,7 +1,7 @@
 
 use ../ergo *;
 
-export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record<branch: string, hash: string, message: string, diff: list<string>, summary: string>> {
+export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record> {
     let message = $message | parseMessageArgs;
     let commitResult = do {
         ^git add -A;
