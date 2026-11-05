@@ -14,8 +14,12 @@ export def get-branch []: nothing -> string {
     getBranch
 }
 
-export def rev-compare [from: string, to: string]: nothing -> record {
-    revCompare $from $to
+export def rev-compare [
+    from: string,
+    to: string,
+    --verbose (-v),
+]: nothing -> record {
+    revCompare $from $to --verbose=$verbose
 }
 
 export def get-diff [from: string= 'HEAD', to?: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {

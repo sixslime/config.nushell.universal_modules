@@ -52,15 +52,24 @@ export def doPush []: nothing -> oneof<nothing, record, record<remote: string, d
     }
 }
 
-export def revCompare [from: string, to: string]: nothing -> record {
-    let compare = ^git rev-list --left-right --count $"($from)..($to)"
+export def revCompare [
+    from: string,
+    to: string,
+    --verbose (-v),
+]: nothing -> record {
+    ^git rev-list --left-right --count $"($from)..($to)"
     | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
-    | first;
-    let compare = {
-        behind: ($compare.ahead | into int),
-        ahead: ($compare.behind | into int),
-    };
-    $compare | insert synced (($compare.ahead == 0) and ($compare.behind == 0))
+    | first
+    | items {|key, strVal|
+        let value = $strVal | into int;
+        if (($value != 0) or $verbose) {
+            {$key: $value}
+        }
+    }
+    | filter-null
+    | into record
+    | let compare
+    | insert synced ([$compare.ahead?, $compare.behind?] | all {($in | is-empty) or ($in == 0)})
 }
 
 export def getBranch []: nothing -> string {
