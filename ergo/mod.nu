@@ -3,12 +3,7 @@ export def mapv [
     func: closure,
     --empty (-e),
 ]: any -> any {
-    let condition = if $empty {
-        { not ($in | is-empty) }
-    } else {
-        { $in != null }
-    };
-    $in | mapv-if $condition $func
+    $in | mapv-if (valuePassCondition $empty) $func
 }
 
 export def mapv-if [
@@ -22,15 +17,49 @@ export def mapv-if [
     }
 }
 
+export def insertv [
+    path: cell-path,
+    value: any,
+    --empty (-e),
+]: record -> record {
+    if ($value | do (valuePassCondition $empty)) {
+        insert $path $value
+    } else {
+        $in
+    }
+}
+
+export def filter-null [
+    --empty (-e)
+]: list<any> -> list<any> {
+    let condition = valuePassCondition $empty;
+    $in | where $condition
+}
 export def chain [modifier: closure]: closure -> closure {
     let prev = $in;
     { ($in | do $prev) | do $modifier }
 }
 
-export def flag-args [flagMap: record]: nothing -> list<string> {
+export def flag-args [
+    flagMap: record
+]: nothing -> list<string> {
     ($flagMap
     | items {|flag, switch|
         if $switch { $flag } else { null }
     }
     | where { is-not-empty })
+}
+
+export def args [
+    args: list<oneof<nothing, string>>
+]: nothing -> list<string> {
+    $args | filter-null
+}
+
+def valuePassCondition [empty: bool]: any -> closure {
+    if $empty {
+        { is-not-empty }
+    } else {
+        { $in != null }
+    }
 }
