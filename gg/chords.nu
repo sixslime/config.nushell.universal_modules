@@ -35,8 +35,6 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
     }
 }
 
-export alias wp = w --push;
-
 export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<record, nothing>, submodules: table<path: string, result: record>> {
     let message = $message | getMessageFromArgs;
     let submodules = getSubmodules true
@@ -53,8 +51,6 @@ export def wr [--push (-p), ...message: string]: nothing -> record<super: oneof<
         super: $super,
     }
 }
-
-export alias wrp = wr --push;
 
 export def fr [--pull-submodules (-u)] {
     print -e $"(ansi blue_bold)[SUPER](ansi reset)";
@@ -101,8 +97,6 @@ export def fr [--pull-submodules (-u)] {
     }
 }
 
-export alias fru = fr --pull-submodules;
-
 export def st [
     --quick (-q),
     --force-fetch (-f),
@@ -148,5 +142,8 @@ export def stt [
     }
 }
 
+export alias wp = w --push;
 export alias stq = st -q;
+export alias fru = fr --pull-submodules;
+export alias wrp = wr --push;
 export alias sttq = stt -q;
