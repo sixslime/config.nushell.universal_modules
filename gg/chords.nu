@@ -143,7 +143,7 @@ export def stt [
 }
 
 export alias wp = w --push;
-export alias stq = st -q;
-export alias fru = fr --pull-submodules;
 export alias wrp = wr --push;
-export alias sttq = stt -q;
+export alias fru = fr --pull-submodules;
+export alias stq = st --quick;
+export alias sttq = stt --quick;
