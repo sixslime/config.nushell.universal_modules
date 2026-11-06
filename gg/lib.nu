@@ -1,14 +1,6 @@
 
 use ../ergo *;
 
-export def parseMessageArgs []: list<string> -> string {
-    if not ($in | is-empty) {
-        $in | str join ' '
-    } else {
-        '-'
-    }
-}
-
 export def getMessageFromArgs [
     default: string = '-',
     --no-prompt (-n)

@@ -3,7 +3,6 @@ use ../ergo *;
 use lib.nu *;
 
 export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record> {
-    let message = $message | getMessageFromArgs;
     let commitResult = do {
         ^git add -A;
         let branch = ^git branch --no-color --show-current;
@@ -12,6 +11,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<nothing, record
             print -e $"(ansi yellow)No changes to commit. \(($branch))(ansi reset)";
             return null;
         };
+        let message = $message | getMessageFromArgs;
         print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
         ^git commit -qam $message;
         let hash = ^git rev-parse HEAD;
