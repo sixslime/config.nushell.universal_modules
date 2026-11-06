@@ -105,7 +105,11 @@ export alias fru = fr --pull-submodules;
 
 export def st [
     --quick (-q),
+    --force-fetch (-f),
 ]: nothing -> oneof<oneof<bool, list<string>>, record> {
+    if $force_fetch {
+        ^git fetch;
+    };
     let branch = getBranch;
     let upstreamSource = getUpstream;
     let remote = if ($upstreamSource | is-not-empty) {
@@ -129,14 +133,15 @@ export def st [
 
 export def stt [
     --quick (-q),
+    --force-fetch (-f),
 ]: nothing -> record {
     let submodules = getSubmodules true
     | par-each -k {|submodule|
         cd $submodule.cdPath;
-        let result = st --quick=$quick;
+        let result = st --quick=$quick --force-fetch=$force_fetch;
         { path: $submodule.modulePath, result: $result }
     };
-        let super = st --quick=$quick;
+        let super = st --quick=$quick --force-fetch=$force_fetch;
     {
         submodules: $submodules,
         super: $super,
