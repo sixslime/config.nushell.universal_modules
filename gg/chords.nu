@@ -100,7 +100,7 @@ export def fr [--pull-submodules (-u)] {
 export def st [
     --quick (-q),
     --force-fetch (-f),
-]: nothing -> oneof<oneof<bool, list<string>>, record> {
+]: nothing -> oneof<string, record> {
     if $force_fetch {
         ^git fetch;
     };
@@ -128,7 +128,8 @@ export def st [
             $status.remote.status
             | if ($in | get synced -o) != true { $in | reject synced }
         )
-        | mapv -e { {branch: $branch} | merge $in }
+        | let o
+        | mapv -e { {branch: $branch} | merge $o }
         | default -e $status.branch
     }
 }
