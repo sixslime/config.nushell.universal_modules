@@ -67,7 +67,7 @@ export def revCompare [
 ]: nothing -> record {
     def getRev [a: string, b: string, col_a: string, col_b: string] {
         ^git rev-list --left-right --count $"($a)..($b)"
-        | parse -r $"(?<($col_a)>[0-9]+)\\s+(?<($col_b)>[0-9])"
+        | parse -r $"\(?<($col_a)>[0-9]+)\\s+\(?<($col_b)>[0-9])"
         | first
         | items {|key, strVal|
             let value = $strVal | into int;

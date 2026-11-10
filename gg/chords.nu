@@ -125,8 +125,8 @@ export def st [
         {}
         | insertv dirty $status.dirty?
         | insertv remote (
-            $status.remote?
-            | if (get synced -o) != true { $in }
+            $status.remote.status
+            | if ($in | get synced -o) != true { $in }
         )
         | default -e true
     }
