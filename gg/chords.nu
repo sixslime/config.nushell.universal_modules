@@ -122,12 +122,14 @@ export def st [
     }
     | mapv-if { $quick } {
         let status = $in;
-        { branch: $status.branch }
+        {}
         | insertv dirty $status.dirty?
         | insertv remote (
             $status.remote.status
             | if ($in | get synced -o) != true { $in | reject synced }
         )
+        | mapv -e { {branch: $branch} | merge $in }
+        | default -e $status.branch
     }
 }
 
