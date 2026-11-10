@@ -109,7 +109,7 @@ export def st [
     let remote = if ($upstreamSource | is-not-empty) {
         {
             source: $upstreamSource,
-            status: (revCompare $upstreamSource HEAD)
+            status: (revCompare HEAD $upstreamSource)
         }
     };
     let dirty = getDiff 'HEAD' | mapv { get changes -o };
