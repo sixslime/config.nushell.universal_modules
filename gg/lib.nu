@@ -65,19 +65,28 @@ export def revCompare [
     to: string,
     --verbose (-v),
 ]: nothing -> record {
-    ^git rev-list --left-right --count $"($from)..($to)"
-    | parse -r "(?<behind>[0-9]+)\\s+(?<ahead>[0-9])"
-    | first
-    | items {|key, strVal|
-        let value = $strVal | into int;
-        if (($value != 0) or $verbose) {
-            {$key: $value}
+    def getRev [a: string, b: string, col_a: string, col_b: string] {
+        ^git rev-list --left-right --count $"($a)..($b)"
+        | parse -r $"(?<($col_a)>[0-9]+)\\s+(?<($col_b)>[0-9])"
+        | first
+        | items {|key, strVal|
+            let value = $strVal | into int;
+            if $value != 0 {
+                {$key: ($strVal | into)}
+            }
         }
+        | filter-null
+        | into record
     }
-    | filter-null
-    | into record
+    const behindName = "behind";
+    const aheadName = "ahead";
+    let forwardRev = getRev $from $to $behindName $aheadName;
+    let backwardRev = getRev $to $from $aheadName $behindName;
+
+    $backwardRev
+    | merge $forwardRev
     | let compare
-    | insert synced ([$compare.ahead?, $compare.behind?] | all {($in | is-empty) or ($in == 0)})
+    | insert synced ([($compare | get $behindName -o), ($compare | get $aheadName -o)] | all {($in | is-empty) or ($in == 0)})
 }
 
 export def getBranch []: nothing -> string {

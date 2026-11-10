@@ -121,7 +121,14 @@ export def st [
         insert clean true
     }
     | mapv-if { $quick } {
-        $in.dirty? | default true
+        let status = $in;
+        {}
+        | insertv dirty $status.dirty?
+        | insertv remote (
+            $status.remote?
+            | if (get synced -o) != true { $in }
+        )
+        | default -e true
     }
 }
 
