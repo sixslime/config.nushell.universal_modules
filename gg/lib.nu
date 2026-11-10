@@ -72,7 +72,7 @@ export def revCompare [
         | items {|key, strVal|
             let value = $strVal | into int;
             if $value != 0 {
-                {$key: ($strVal | into)}
+                {$key: $value}
             }
         }
         | filter-null
