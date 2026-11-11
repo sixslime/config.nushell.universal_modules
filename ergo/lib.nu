@@ -26,7 +26,7 @@ export def parseTypeAnnotation []: string -> record {
     const streamSuffix = ' (stream)';
     let typeAnnotation = $in
     | if ($in | str ends-with $streamSuffix) {
-        $in | str substring ..-(($streamSuffix | str length) + 1)
+        $in | str substring ..(0 - (($streamSuffix | str length) + 1))
     } else {
         $in
     };
@@ -49,10 +49,11 @@ export def parseTypeAnnotation []: string -> record {
         0 => (
             let base = $typeAnnotation | str substring ..($bracketIndex.left - 1);
             let innerStr = $typeAnnotation | str substring ($bracketIndex.left + 1)..($bracketIndex.right - 1);
+            print ($innerStr | split row ', ');
             let inner = $innerStr
             | split row ', '
-            | each {
-                let raw = split column -n 2 ': ' key subtype;
+            | each {|subtypeStr|
+                let raw = $subtypeStr | split column -n 2 ': ' key subtype | first;
                 let key = $raw.key;
                 let subtype = $raw.subtype | parseTypeAnnotation;
                 { $key: $subtype }

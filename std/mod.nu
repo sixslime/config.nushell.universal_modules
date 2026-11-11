@@ -18,11 +18,4 @@ export use ../fs [
     in,
 ];
 
-export use ../ergo [
-    mapv,
-    mapv-if,
-    insertv,
-    filter-null,
-    flag-args,
-    args,
-];
+export use ../ergo *;
