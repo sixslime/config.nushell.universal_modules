@@ -10,7 +10,7 @@ export def valuePassCondition [empty: bool]: any -> closure {
 export def isType [
     typeMatchStr: string,
     --strict (-s),
-]: string -> bool {
+]: any -> bool {
     let type = $in | describe;
     if $strict {
         return ($type == $typeMatchStr);
@@ -51,7 +51,6 @@ export def parseTypeAnnotation []: string -> record {
         0 => (
             let base = $typeAnnotation | str substring ..($bracketIndex.left - 1);
             let innerStr = $typeAnnotation | str substring ($bracketIndex.left + 1)..($bracketIndex.right - 1);
-            print ($innerStr | split row ', ');
             let inner = $innerStr
             | split row ', '
             | each {|subtypeStr|
