@@ -62,7 +62,7 @@ export def args [
 export def accept [
     condition: closure,
 ]: any -> oneof<nothing, any> {
-    if ($in | $condition) {
+    if ($in | do $condition) {
         $in
     }
 }
