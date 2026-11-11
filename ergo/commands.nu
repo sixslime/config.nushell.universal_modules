@@ -59,6 +59,14 @@ export def args [
     $args | filter-null
 }
 
+export def accept [
+    condition: closure,
+    func: closure,
+]: any -> oneof<nothing, any> {
+    if ($in | $condition) {
+        do $func
+    }
+}
 export def is-type [
     typeMatch: string,
     --strict (-s)
