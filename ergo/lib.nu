@@ -15,11 +15,13 @@ export def isType [
     if $strict {
         return ($type == $typeMatchStr);
     };
-    let bracketPos = $typeMatchStr | {
-        left: ($in | str index-of '<'),
-        right: ($in | str index-of '>'),
+    let matchStructure = $typeMatchStr | parseTypeAnnotation;
+    if ($matchStructure.inner? | is-empty) {
+        return ($type | str starts-with $matchStructure.base);
     };
-    false
+    let inputStructure = $type | parseTypeAnnotation;
+    let mergedStructure = $inputStructure | merge deep $matchStructure;
+    ($inputStructure == $mergedStructure)
 }
 
 export def parseTypeAnnotation []: string -> record {

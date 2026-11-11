@@ -59,6 +59,17 @@ export def args [
     $args | filter-null
 }
 
+export def is-type [
+    typeMatch: string,
+    --strict (-s)
+]: any -> bool {
+    isType $typeMatch --strict=$strict;
+}
+
 export def describe-structured []: any -> record {
     describe | parseTypeAnnotation;
+}
+
+export def type-structure []: string -> record {
+    parseTypeAnnotation;
 }
