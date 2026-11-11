@@ -61,10 +61,9 @@ export def args [
 
 export def accept [
     condition: closure,
-    func: closure,
 ]: any -> oneof<nothing, any> {
     if ($in | $condition) {
-        do $func
+        $in
     }
 }
 export def is-type [
