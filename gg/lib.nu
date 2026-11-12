@@ -45,7 +45,7 @@ export def doPush []: nothing -> oneof<nothing, record, record<remote: string, d
         print -e $"(ansi yellow)No differences to push. \(($branch) == ($upstream))(ansi reset)";
         return null;
     };
-    let diff = getDiff $branch $upstream;
+    let diff = getDiff $upstream $branch;
     print -e $"(ansi green)Pushing ($branch) to ($upstream)...(ansi reset)";
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
