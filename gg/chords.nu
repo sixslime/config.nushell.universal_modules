@@ -98,7 +98,7 @@ export def fr [--pull-submodules (-u)] {
 }
 
 export def st [
-    --quick (-q),
+    --verbose (-v),
     --force-fetch (-f),
 ]: nothing -> oneof<string, record> {
     if $force_fetch {
@@ -109,7 +109,7 @@ export def st [
     let remote = if ($upstreamSource | is-not-empty) {
         {
             source: $upstreamSource,
-            status: (revCompare HEAD $upstreamSource)
+            status: (revCompare HEAD $upstreamSource --verbose=$verbose)
         }
     };
     let dirty = getDiff 'HEAD' | mapv { get changes -o };
@@ -120,7 +120,7 @@ export def st [
     } else {
         insert clean true
     }
-    | mapv-if { $quick } {
+    | mapv-if { not $verbose } {
         let status = $in;
         {}
         | insertv dirty $status.dirty?
@@ -135,16 +135,16 @@ export def st [
 }
 
 export def stt [
-    --quick (-q),
+    --verbose (-v),
     --force-fetch (-f),
 ]: nothing -> record {
     let submodules = getSubmodules true
     | par-each -k {|submodule|
         cd $submodule.cdPath;
-        let result = st --quick=$quick --force-fetch=$force_fetch;
+        let result = st --verbose=$verbose --force-fetch=$force_fetch;
         { path: $submodule.modulePath, result: $result }
     };
-        let super = st --quick=$quick --force-fetch=$force_fetch;
+        let super = st --verbose=$verbose --force-fetch=$force_fetch;
     {
         submodules: $submodules,
         super: $super,
@@ -154,5 +154,5 @@ export def stt [
 export alias wp = w --push;
 export alias wrp = wr --push;
 export alias fru = fr --pull-submodules;
-export alias stq = st --quick;
-export alias sttq = stt --quick;
+export alias stv = st --verbose;
+export alias sttv = stt --verbose;

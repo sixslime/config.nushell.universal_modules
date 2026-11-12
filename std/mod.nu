@@ -10,8 +10,8 @@ export use ../gg [
     fru,
     st,
     stt,
-    stq,
-    sttq,
+    stv,
+    sttv,
 ];
 
 export use ../fs [
