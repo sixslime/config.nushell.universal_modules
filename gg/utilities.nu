@@ -25,3 +25,11 @@ export def rev-compare [
 export def get-diff [from: string= 'HEAD', to?: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {
     getDiff $from $to
 }
+
+export def chmod [
+    path: string,
+    xflag = true,
+] {
+    let chmodArg = if $xflag { "+x" } else { "-x" };
+    ^git add --chmod=$chmodArg $path
+}
