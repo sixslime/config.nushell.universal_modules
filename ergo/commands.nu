@@ -1,6 +1,5 @@
 
 use ./lib.nu *;
-
 export def mapv [
     func: closure,
     --empty (-e),
